@@ -1,0 +1,79 @@
+name: Chrome Extension CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    env:
+      NODE_ENV: test
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb wget unzip
+          
+      - name: Install Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
+          sudo apt-get install -f
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Start Xvfb
+        run: |
+          Xvfb :99 -screen 0 1280x720x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+          
+      - name: Run tests
+        run: |
+          npm run test:e2e
+        env:
+          CI: true
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            test-results/
+            .test-user-data/
+            
+      - name: Report status
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { sha } = context;
+            const state = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state,
+              target_url: `${process.env.GITHUB_SERVER_URL}/${owner}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+              description: '测试' + (state === 'success' ? '通过' : '失败'),
+              context: 'Chrome Extension Tests'
+            }); 
