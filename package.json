@@ -1,0 +1,17 @@
+{
+  "name": "cookie-isolation-manager",
+  "version": "1.0.0",
+  "description": "Chrome扩展自动化测试示例",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:e2e": "jest tests/e2e/test.js --detectOpenHandles"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "puppeteer-core": "^21.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

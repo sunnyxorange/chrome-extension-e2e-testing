@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Cookie Isolation Manager",
+  "version": "1.0.0",
+  "description": "在同一浏览器窗口中管理多个账户的 Cookie 隔离",
+  "permissions": [
+    "tabs",
+    "cookies",
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "*://*.pinduoduo.com/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [{
+    "resources": ["utils/*"],
+    "matches": ["<all_urls>"]
+  }]
+} 

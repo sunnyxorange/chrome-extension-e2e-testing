@@ -1,0 +1,169 @@
+{
+  "rules": [
+    {
+      "name": "Chrome 扩展程序开发与自动化测试",
+      "description": "在 Ubuntu 服务器上进行 Chrome 扩展程序的开发和自动化测试，使用 Xvfb 支持无头模式。",
+      "steps": [
+        {
+          "title": "环境准备",
+          "details": [
+            {
+              "sub_title": "安装必要的依赖",
+              "content": [
+                "在 Ubuntu 服务器上，打开终端并运行以下命令以安装必要的依赖项：",
+                "```bash",
+                "sudo apt update",
+                "sudo apt install -y \",
+                "  xvfb \",
+                "  wget \",
+                "  unzip \",
+                "  libnss3 \",
+                "  libxss1 \",
+                "  libgconf-2-4 \",
+                "  libx11-xcb1 \",
+                "  fonts-liberation \",
+                "  libappindicator3-1 \",
+                "  libasound2 \",
+                "  google-chrome-stable",
+                "```"
+              ]
+            },
+            {
+              "sub_title": "安装 Chrome",
+              "content": [
+                "如果 Chrome 尚未安装，可以使用以下命令进行安装：",
+                "```bash",
+                "wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb",
+                "sudo dpkg -i google-chrome-stable_current_amd64.deb",
+                "sudo apt-get install -f  # 修复依赖",
+                "```"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "启动 Xvfb",
+          "details": [
+            {
+              "content": [
+                "在运行自动化测试之前，您需要启动 Xvfb。可以使用以下命令启动 Xvfb：",
+                "```bash",
+                "Xvfb :99 -screen 0 1280x720x24 &",
+                "export DISPLAY=:99",
+                "```"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "配置 Puppeteer",
+          "details": [
+            {
+              "content": [
+                "在您的测试脚本中，确保 Puppeteer 使用无头模式并指向正确的 Chrome 可执行文件。以下是一个示例配置：",
+                "```javascript",
+                "const puppeteer = require('puppeteer-core');",
+                "(async () => {",
+                "  const browser = await puppeteer.launch({",
+                "    executablePath: '/usr/bin/google-chrome', // Chrome 的路径",
+                "    headless: true, // 使用无头模式",
+                "    args: [",
+                "      '--no-sandbox',",
+                "      '--disable-setuid-sandbox',",
+                "      '--disable-dev-shm-usage',",
+                "      '--remote-debugging-port=9222',",
+                "      '--disable-gpu',",
+                "      '--window-size=1280,720',",
+                "      '--user-data-dir=/tmp/test-user-data-dir' // 使用临时用户数据目录",
+                "    ]",
+                "  });",
+                "  // 进行测试...",
+                "  await browser.close();",
+                "})();",
+                "```"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "运行自动化测试",
+          "details": [
+            {
+              "content": [
+                "在设置好 Xvfb 和 Puppeteer 后，您可以直接在 Ubuntu 服务器上运行自动化测试。确保在运行测试之前启动 Xvfb。",
+                "```bash",
+                "# 启动 Xvfb",
+                "Xvfb :99 -screen 0 1280x720x24 &",
+                "export DISPLAY=:99",
+                "",
+                "# 运行测试",
+                "npm run test:e2e",
+                "```"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "监控和调试",
+          "details": [
+            {
+              "sub_title": "日志记录",
+              "content": [
+                "在测试中添加详细的日志记录，以便在出现问题时能够快速定位。"
+              ]
+            },
+            {
+              "sub_title": "错误处理",
+              "content": [
+                "确保在测试中处理可能的错误，并记录相关信息。"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "CI/CD 集成（可选）",
+          "details": [
+            {
+              "content": [
+                "如果您希望将测试集成到 CI/CD 流程中，可以使用 GitHub Actions 或其他 CI 工具。以下是一个简单的 GitHub Actions 配置示例：",
+                "```yaml",
+                "name: CI",
+                "on: [push]",
+                "jobs:",
+                "  test:",
+                "    runs-on: ubuntu-latest",
+                "    steps:",
+                "      - name: Checkout code",
+                "        uses: actions/checkout@v2",
+                "      - name: Install dependencies",
+                "        run: |",
+                "          sudo apt update",
+                "          sudo apt install -y xvfb",
+                "          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb",
+                "          sudo dpkg -i google-chrome-stable_current_amd64.deb",
+                "          sudo apt-get install -f",
+                "      - name: Start Xvfb",
+                "        run: Xvfb :99 -screen 0 1280x720x24 &",
+                "      - name: Run tests",
+                "        env:",
+                "          DISPLAY: :99",
+                "        run: npm run test:e2e",
+                "```"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "总结",
+          "details": [
+            {
+              "content": [
+                "通过以上步骤，您可以在 Ubuntu 服务器上使用 Xvfb 进行 Chrome 扩展程序的开发和自动化测试。这种方法能够确保在无图形环境中顺利运行测试，同时保持高效和稳定。"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 
